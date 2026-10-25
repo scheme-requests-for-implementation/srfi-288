@@ -161,7 +161,7 @@ SPDX-License-Identifier: MIT
       an implementation does have them, while also being detectable
       so that a user can test if that feature is available? Each
       possible simple condition type could be given its own library
-      like <code>(srfi 288 warning)</code> for <code>&warning</code>,
+      like <code>(srfi 288 warning)</code> for <code>&amp;warning</code>,
       but this is very tedious. Maybe these should be in an
       implementation-specified library.</li>
 </ul>
@@ -579,7 +579,7 @@ SPDX-License-Identifier: MIT
 <p>
   Unless specified, these conditions may be simple or compound. As such,
   the implementation dependent values that would correspond to
-  <code>&message</code>, <code>&irritants</code>, etc. are not provided.
+  <code>&amp;message</code>, <code>&amp;irritants</code>, etc. are not provided.
   An implementation that makes these conditions simple should provide these
   identifiers.
 </p>
@@ -616,7 +616,7 @@ SPDX-License-Identifier: MIT
 <code class="signature">(<a id="make-message-condition" href="#make-message-condition"
                         >make-message-condition</a> <var>string</var>)</code><br>
 <span class="category">procedure</span>
-<code class="signature">(<a id="make-message-condition" href="#make-message-condition"
+<code class="signature">(<a id="condition-message" href="#condition-message"
                         >condition-message</a> <var>this-condition</var>)</code><br>
 <span class="category">procedure</span>
 <code class="signature">(<a id="message-conditionp" href="#message-conditionp"
@@ -640,7 +640,7 @@ error objects are compound conditions
 <code class="signature">(<a id="make-irritants-condition" href="#make-irritants-condition"
                         >make-irritants-condition</a> <var>list</var>)</code><br>
 <span class="category">procedure</span>
-<code class="signature">(<a id="make-irritants-condition" href="#make-irritants-condition"
+<code class="signature">(<a id="condition-irritants" href="#condition-irritants"
                         >condition-irritants</a> <var>this-condition</var>)</code><br>
 <span class="category">procedure</span>
 <code class="signature">(<a id="irritants-conditionp" href="#irritants-conditionp"
@@ -708,7 +708,7 @@ error objects are compound conditions
 </p>
 
 <p>
-  <span class="report-name">R<sup>6</sup>RS</span> <code>&error</code>
+  <span class="report-name">R<sup>6</sup>RS</span> <code>&amp;error</code>
   conditions are external error conditions.
 </p>
 
@@ -817,18 +817,18 @@ error objects are compound conditions
 </p>
 </div>
 
-<h3 id="examples"><a href="#examples"></a> Examples</h2>
+<h3 id="examples"><a href="#examples"></a> Examples</h3>
 
 <p><em>This section is non-normative.</em></p>
 
 <pre
->(define-condition-type &type-mismatch
+>(define-condition-type &amp;type-mismatch
   (make-type-mismatch value expected)
   type-mismatch?
   (value type-mismatch:value)
   (expected type-mismatch:expected))
 
-(define-condition-type &who
+(define-condition-type &amp;who
   (make-who-condition who)
   who-condition?
   (who condition-who))
@@ -968,7 +968,7 @@ error objects are compound conditions
   defining compound condition systems in Scheme.
 </p>
 
-<h2 id="other-systems"><a href="#other-systems"></a> Appendix 1: Other systems</h3>
+<h2 id="other-systems"><a href="#other-systems"></a> Appendix 1: Other systems</h2>
 
 <p>
   This table covers the various non-<span
