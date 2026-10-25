@@ -1,0 +1,162 @@
+# SPDX-FileCopyrightText: 2026 Peter McGoron
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+diff --git a/src/runtime/error.scm b/src/runtime/error.scm
+index 0ac5220ae..1f1e96f7d 100644
+--- a/src/runtime/error.scm
++++ b/src/runtime/error.scm
+@@ -54,6 +54,54 @@ USA.
+ (define-integrable (guarantee-condition-types object caller)
+   (guarantee-list-of condition-type? object caller))
+ 
++(define (compound-condition? obj)
++  (and (condition? obj)
++       (memq condition-type:compound-condition
++             (%condition-type/generalizations
++              (%condition/type obj)))))
++
++(define (simple-conditions condition)
++  (cond
++    ((compound-condition? condition)
++     (vector-ref (%condition/field-values condition)
++                 (%condition-type/field-index
++                  condition-type:compound-condition
++                  'conditions
++                  'simple-conditions)))
++    ((condition? condition)
++     (list condition))
++    (else (error:wrong-type-argument condition
++                                     "condition"
++                                     'simple-conditions))))
++
++(define (condition . conditions)
++  (cond
++    ((null? conditions)
++     (call-with-current-continuation
++      (lambda (k)
++        (make-condition condition-type:compound-condition
++                        k
++                        'bound-restarts
++                        '(conditions ())))))
++    ((null? (cdr conditions))
++     (car conditions))
++    (else
++     #f ; ??????
++     (let ((simplified
++            (let loop ((conditions conditions))
++              (if (null? conditions)
++                  '()
++                  (let ((first (car conditions)))
++                    (if (compound-condition? first)
++                        (append (loop (simple-conditions first))
++                                (loop (cdr conditions)))
++                        (cons first (loop (cdr conditions))))))))
++           (first (car conditions)))
++       (make-condition condition-type:compound-condition
++                       (condition/continuation first)
++                       (condition/restarts first)
++                       `(conditions ,simplified))))))
++
+ (define (make-condition-type name generalization field-names reporter)
+   (if generalization
+       (guarantee-condition-type generalization 'make-condition-type))
+@@ -122,6 +170,28 @@ USA.
+ 		  (cons (cons (car field-names) index) indexes))
+ 	    (values index (reverse! indexes)))))))
+ 
++(define condition-type:compound-condition
++  (call-with-values
++    (lambda ()
++      (compute-field-indexes #f '(conditions)))
++    (lambda (n-fields field-indexes)
++      (define type
++        (%make-condition-type
++         (string->immutable "compound condition")
++         field-indexes
++         n-fields
++         (lambda (compound port)
++           (display "Compound condition of: " port)
++           (for-each (lambda (condition)
++                       (write-condition-report condition port))
++                     (access-condition compound 'conditions))
++           (newline port))))
++      (set-%condition-type/generalizations!
++       type
++       (list type))
++      type)))
++
++
+ (define (%condition-type/field-index type field-name operator)
+   (let ((association (assq field-name (%condition-type/field-indexes type))))
+     (if (not association)
+@@ -236,7 +306,15 @@ USA.
+ 
+ (define (condition-predicate type)
+   (guarantee-condition-type type 'condition-predicate)
+-  (lambda (object) (%condition-of-type? object type)))
++  (lambda (object)
++    (or (%condition-of-type? object type)
++        (and (compound-condition? object)
++             (let loop ((conditions (simple-conditions object)))
++               (and (pair? conditions)
++                    (or (%condition-has-type?
++                         (car conditions)
++                         type)
++                        (loop (cdr conditions)))))))))
+ 
+ (define (%condition-of-type? object type)
+   (and (condition? object)
+@@ -248,18 +326,30 @@ USA.
+ (define (condition-accessor type field-name)
+   (guarantee-condition-type type 'condition-accessor)
+   (guarantee symbol? field-name 'condition-accessor)
+-  (let ((predicate (condition-predicate type))
+-	(index
++  (let ((index
+ 	 (%condition-type/field-index type
+ 				      field-name
+ 				      'condition-accessor)))
+     (lambda (condition)
+-      (if (not (predicate condition))
+-	  (error:wrong-type-argument condition
+-				     (string-append "condition of type "
+-						    (write-to-string type))
+-				     'condition-accessor))
+-      (vector-ref (%condition/field-values condition) index))))
++      (define (fail)
++         (error:wrong-type-argument condition
++                                    (string-append "condition of type "
++                                                   (write-to-string type))
++                                    'condition-accessor))
++      (define (success condition)
++        (vector-ref (%condition/field-values condition) index))
++      (cond
++        ((not condition) (fail))
++        ((%condition-has-type? condition type)
++         (success condition))
++        ((compound-condition? condition)
++         (let loop ((conditions (simple-conditions condition)))
++           (cond
++             ((null? conditions) (fail))
++             ((%condition-has-type? (car conditions) type)
++              (success (car conditions)))
++             (else (loop (cdr conditions))))))
++        (else (fail))))))
+ 
+ (define (access-condition condition field-name)
+   (guarantee-condition condition 'access-condition)
+diff --git a/src/runtime/runtime.pkg b/src/runtime/runtime.pkg
+index 9cf05475d..b9501d86d 100644
+--- a/src/runtime/runtime.pkg
++++ b/src/runtime/runtime.pkg
+@@ -2409,6 +2409,10 @@ USA.
+ 	  invoke-restart-interactively
+ 	  make-condition
+ 	  make-condition-type
++	  condition-type:compound-condition
++	  compound-condition?
++	  simple-conditions
++	  condition
+ 	  muffle-warning
+ 	  param:standard-error-hook
+ 	  param:standard-warning-hook

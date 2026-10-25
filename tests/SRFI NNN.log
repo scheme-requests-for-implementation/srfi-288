@@ -1,0 +1,78 @@
+%%%% Starting test SRFI NNN
+Group begin: SRFI NNN
+Group begin: user simple conditions
+Test begin:
+  test-name: "define-condition-type constructor makes conditions"
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "define-condition-type predicate"
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "accessor on simple condition, 1"
+Test end:
+  result-kind: pass
+  actual-value: 1
+  expected-value: 1
+Test begin:
+  test-name: "accessor on simple condition, 2"
+Test end:
+  result-kind: pass
+  actual-value: 2
+  expected-value: 2
+Group end: user simple conditions
+Group begin: Compound conditions
+Test begin:
+  test-name: "compound condition type with conditions"
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "predicate on compound condition"
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "user predicate on compound condition"
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "accessor on compound condition, 1"
+Test end:
+  result-kind: pass
+  actual-value: 10
+  expected-value: 10
+Test begin:
+  test-name: "accessor on compound condition, 2"
+Test end:
+  result-kind: pass
+  actual-value: 20
+  expected-value: 20
+Group begin: Simple conditions
+Group end: Simple conditions
+Group begin: Multiple conditions in compound condition
+Test begin:
+  test-name: "Predicate"
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "Accessor 1 accesses first instance"
+Test end:
+  result-kind: pass
+  actual-value: 10
+  expected-value: 10
+Test begin:
+  test-name: "Accessor 2 accesses first instance"
+Test end:
+  result-kind: pass
+  actual-value: 20
+  expected-value: 20
+Group end: Multiple conditions in compound condition
+Group end: Compound conditions
+Group end: SRFI NNN
+# of expected passes      12

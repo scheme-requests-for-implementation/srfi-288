@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+SPDX-FileCopyrightText: 2026 Peter McGoron
+-->
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI ###: Compound Conditions</title>
+    <style>
+            .strikethrough {
+              text-decoration: line-through;
+            }
+            table {
+              border: 1px solid;
+              margin-bottom: 12pt;
+            }
+            @media (prefers-color-scheme: light) {
+              :root {
+                --background-color: white;
+                --link-color: blue;
+                --text-color: black;
+                --visited-link-color: purple;
+              }
+
+              pre {
+                  border: 1px solid;
+                  padding: 7.5px;
+                  background-color: #f0f0f0;
+                  margin-bottom: 18pt;
+              }
+
+              .no-border {
+                border: none;
+              }
+
+              code {
+                  background-color: #f0f0f0;
+              }
+            }
+
+            @media (prefers-color-scheme: dark) {
+              :root {
+                --background-color: #161616;
+                --link-color: SkyBlue;
+                --text-color: #e0e0e0;
+                --visited-link-color: Orchid;
+              }
+
+              pre {
+                  border: 1px solid;
+                  padding: 7.5px;
+                  background-color: #2b2b2b;
+                  margin-bottom: 18pt;
+              }
+
+              code {
+                background-color: #2b2b2b;
+              }
+            }
+
+    .never-break-inside > a {
+      white-space: nowrap;
+    }
+    .never-break-inside > code {
+      white-space: nowrap;
+    }
+
+            .normal-font {
+              font-family: sans-serif;
+            }
+
+            .feature {
+              overflow: hidden;
+            }
+
+            .category {
+              float: right;
+              font-family: monospace;
+              font-size: 12pt;
+            }
+
+            .boxed {
+              border: 1px solid;
+              padding-top: 6pt;
+              padding-bottom: 6pt;
+              padding-left: 6pt;
+              padding-right: 12pt;
+              overflow: auto;
+              margin-bottom: 6pt;
+            }
+
+            .boxed-tag {
+              font-style: italic;
+            }
+
+            .example-code {
+              /* background-color: var(--background-color); */
+              display: inline-block;
+              min-width: 46ch;
+            }
+
+            a {
+              color: var(--link-color);
+            }
+            a:visited {
+              color: var(--visited-link-color);
+            }
+            body {
+              background-color: var(--background-color);
+              color: var(--text-color);
+            }
+            .report-name {
+              font-style: italic;
+            }
+
+            .centered {
+             text-align: center;
+            }
+            .evals-side {
+            }
+
+            .evals-text {
+              font-family: serif;
+              font-style: italic;
+            }
+    </style>
+    <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="https://srfi.schemers.org/srfi.css" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1"></head>
+  <body>
+    <h1><a href="https://srfi.schemers.org/"
+        ><img class="srfi-logo"
+              src="https://srfi.schemers.org/srfi-logo.svg"
+              alt="SRFI surfboard logo"
+        /></a>###: Compound Conditions</h1>
+
+<p>by Peter McGoron</p>
+
+<h2 id="abstract"><a href="#abstract"></a> Abstract</h2>
+
+<p>
+  A condition object system is introduced that attempts to be
+  implementable in and interoperable with many implementation’s
+  condition systems, including the condition system of the <span
+  class="report-name">R<sup>6</sup>RS</span>. The condition system
+  includes compound conditions, but does not include subtyping of
+  conditions.
+  Simple conditions can be any implementation-defined value,
+  and are also objects that can be made with the interface in this SRFI.
+  An implementation may add other features, such as
+  introspection and serialization.
+</p>
+
+<h2 id="issues"><a href="#issues"></a> Issues</h2>
+
+<ul>
+  <li>Needs more comprehensive tests.</li>
+  <li>Needs a more explicit comparison to other condition systems.</li>
+  <li>What is a good way to expose simple condition type values when
+      an implementation does have them, while also being detectable
+      so that a user can test if that feature is available? Each
+      possible simple condition type could be given its own library
+      like <code>(srfi NNN warning)</code> for <code>&warning</code>,
+      but this is very tedious. Maybe these should be in an
+      implementation-specified library.</li>
+</ul>
+
+<h2 id="rationale"><a href="#rationale"></a> Rationale</h2>
+<p><em>This section is non-normative.</em></p>
+
+<p>
+  Conditions, which are objects that describe exceptional
+  situations, are implemented in many Scheme systems. In the <span
+  class="report-name">R<sup>7</sup>RS</span>, error objects are provided
+  as a way to signal errors with accompanying information, and two special
+  predicates (<code>read-error?</code> and <code>file-error?</code>)
+  are provided to check if an exception was raised by certain
+  procedures. These operations are designed such that they can
+  interoperate with the native condition system of the implementation.
+</p>
+
+<p>
+  The <span class="report-name">R<sup>6</sup>RS</span> introduced
+  a system of condition types where conditions were record types:
+  condition types were inspectable could be subtyped. The record system
+  of the <span class="report-name">R<sup>6</sup>RS</span> has been
+  criticized elsewhere [Clinger <a href="#clinger2007">2007</a>, <a
+  href="#clinger2009">2009</a>], and those arguments are not particularly
+  relevant here. The important thing is, the
+  <span class="report-name">R<sup>6</sup>RS</span> condition system
+  requires the use of the criticized <span
+  class="report-name">R<sup>6</sup>RS</span> record type system.
+</p>
+
+<p>
+  The fragmentation of condition objects across implementations is an
+  impediment to portable code. Portable code is forced to use the
+  <code>error</code> procedure, which makes exceptional situations
+  difficult to describe and recover from. There is no standard
+  type in <span class="report-name">R<sup>7</sup>RS</span> used to
+  report non-error conditions, leaving programmers to use ad-hoc
+  record objects.
+</p>
+
+<p>
+  The system described in this SRFI is an attempt to find a reduced
+  subset of the behavior of various implementations. The goals are:
+</p>
+
+<ul>
+  <li>Native conditions and SRFI conditions should interoperate.</li>
+  <li>The SRFI is implementable in <span class="report-name">R<sup>7</sup>RS</span>.</li>
+  <li>The SRFI allows for composition of conditions.</li>
+  <li>The SRFI should work across many implementation-specific conditions
+      systems.</li>
+</ul>
+
+<p>
+  One consequence is that the SRFI does not provide for the subtyping
+  of condition types: this is harder to make interoperate with other
+  Scheme condition systems. Many of the benefits of subtyping can be
+  obtained by using compound conditions.
+</p>
+
+<p>
+  Although the SRFI does not provide subtyping or introspection
+  features, that does not mean that an implementation cannot provide
+  them. Indeed, this entire SRFI can be implemented portably on
+  top of the <span class="report-name">R<sup>6</sup>RS</span>
+  condition type system. Implementations are encouraged to add their
+  own features to the condition system defined in this SRFI, which may
+  include single inheritance, multiple inheritance, introspection,
+  serialization, or generic functions.
+</p>
+
+
+<h3 id="why-not-subtyping"><a href="#why-not-subtyping"></a>
+    Why not subtyping instead of compound conditions?</h3>
+
+<p>
+  Why not add subtyping instead of compound conditions? Subtyping
+  is a more popular feature than compound conditions: see <a
+  href="#other-systems">Appendix 1: Other systems</a>. However,
+  requiring subtyping and using it as the only method of extension
+  makes it difficult to have a portable set of standard conditions,
+  because different implementations have different condition hierarchies.
+  There are cases where the condition hierarchy is not possible to change,
+  for example when a Scheme implementation is embedded in another system
+  that offers exceptions. Example include, Kawa (Java exceptions) and LIPS
+  (Javascript exceptions).
+</p>
+
+<p>
+  This SRFI could have added <em>both</em> subtyping and compound
+  conditions. It does not because subtyping might not be a part of some
+  record type systems in some implementations. Also, without a procedural
+  or inspection interface, there is not much benefit to subtyping versus
+  compound conditions.
+</p>
+
+<h3 id="why-not-proc"><a href="#why-not-proc"></a>
+    Why not a procedural and inspection interface?
+</h3>
+
+<p>
+  The basic procedural interface described in this SRFI is
+  not a required feature because
+  <span class="report-name">R<sup>7</sup>RS</span> records do not have a
+  procedural interface. This SRFI is designed around the fact that
+  an implementation’s condition is usually closely tied to its
+  record/object system, and some of those systems only have syntactic
+  interfaces.
+</p>
+
+<p>
+  A more expansive procedural/inspection interface is not provided because
+  implementations differ in behavior when they employ extensions to this
+  SRFI, and it is difficult to write a specificiation that is forwards
+  compatible with such extensions. For example,
+</p>
+
+<ol>
+  <li>An implementation may access record fields by symbol or by index.</li>
+  <li>An implementation may add subtyping, which makes creating accessors
+      more complicated. </li>
+  <li>An implementation may have an interface for custom constructors.</li>
+  <li>An implementation may allow for conditions to be created dynamically,
+      but might not have a way to store all of the appropriate information
+      in the returned condition type object.</li>
+</ol>
+
+<p>
+   For example, <span class="report-name">R<sup>6</sup>RS</span>’s
+   <code>record-accessor</code> will accept a number index for a field
+   that starts at the first extended field, and does not allow for
+   creating accessors for fields of supertypes without the supertype RTD.
+   Meanwhile, MIT-Scheme allows for accessing the fields of a supertype
+   condition.
+</p>
+
+<h3 id="optional-features"><a href="#optional-features"></a>
+    Optional features
+</h3>
+
+<h4 id="proc-simple"><a href="#proc-simple"></a>
+    Procedural creation of condition types
+</h4>
+
+<p>
+  A procedural interface allows for constructing condition objects based
+  off of runtime values, as opposed to only at expansion time.</p>
+
+<h4 id="simple"><a href="#simple"></a>
+    Accessing simple conditions
+</h4>
+
+<p>
+  The <span class="report-name">R<sup>6</sup>RS</span> has a procedure
+  named <code>simple-conditions</code>, that returns the simple conditions
+  of a compound condition in order. This procedure is useful when two
+  conditions in a compound condition have the same field accessor: this
+  allows the user to get both values of the field.
+</p>
+
+<p>
+  This feature is not required in this SRFI because it was missing from
+  <a href="https://srfi.schemers.org/srfi-12">SRFI 12</a> and
+  <a href="https://srfi.schemers.org/srfi-35">SRFI 35</a>.
+  Conditions of the same type are shadowed in these systems, and the
+  implementation is free to discard them, although at least the
+  sample implementation does not do this.
+</p>
+
+<p>
+  It is useful to coalese fields with the same name, because then the
+  condition type can be represented in a multiple-inheritance object
+  system. However, if this is not required, then an implementation
+  should provide this interface. In particular, implementations that
+  have native exceptions, for example Java exceptions, should provide
+  this interface because it allows the user to access objects which
+  may have operations that are outside of this SRFI (for instance,
+  mutability and object identity).
+</p>
+
+<h2 id="specification"><a href="#specification"></a> Specification</h2>
+<h3 id="required-features"><a href="#required-features"></a> Required and optional features</h3>
+
+<p>
+  The <code>(srfi NNN)</code> and <code>(srfi NNN base)</code> library
+  is required. The other libraries are optional but should be supplied.
+</p>
+
+<p>
+  If two identifiers in separate libraries have the same name, and the
+  implementation provides both libraries, then those identifiers must
+  be equivalent: i.e. one is a re-export of the other.
+</p>
+
+<h3 id="interface"><a href="#interface"></a> Interface</h3>
+
+<p>The <code>(srfi NNN)</code> library exports all identifiers available
+   to the implementation.
+</p>
+
+<div class="feature">
+<pre class="no-border"
+><span class="category">(srfi NNN base)<br>syntax</span
+>(<a id="define-condition-type" href="#define-condition-type"
+  >define-condition-type</a> ⟨type name⟩
+  (⟨constructor⟩ ⟨field⟩ …)
+  ⟨predicate⟩
+  (⟨field<sub>a</sub>⟩ ⟨accessor⟩) …)</pre>
+</div>
+
+<p>
+  It is an error if any syntactic variable is not an identifier.
+</p>
+
+<p>
+  Creates a new condition type (generatively). The
+  ⟨type name⟩ is bound to some implementation-defined value (which is
+  possibly not a runtime value).
+</p>
+
+<p>
+  The ⟨constructor⟩ is bound to a procedure
+  of as many arguments as there are ⟨field⟩s and returns a condition of
+  the specified type.
+</p>
+
+<p>
+  The ⟨predicate⟩ returns <code>#t</code> if the
+  passed object was either created with the ⟨constructor⟩, or is a compound
+  condition containing a condition that would make ⟨predicate⟩ return
+  <code>#t</code> if passed to it, or and returns <code>#f</code> otherwise.
+</p>
+
+<p>
+  Each ⟨accessor⟩ will access the value passed to the constructor
+  in the slot corresponding to ⟨field<sub>a</sub>⟩ as in
+  <code>define-record-type</code>. If an ⟨accessor⟩ is given a compound
+  condition with an instance of this condition inside of it, the ⟨accessor⟩
+  will return the value from the first instance of the condition.
+</p>
+
+<div class="feature">
+<span class="category">(srfi NNN base)<br>procedure</span>
+<code class="signature">(<a id="conditionp" href="#conditionp"
+                        >condition?</a>
+                        <var>obj</var>)</code>
+</div>
+
+<p>
+  Returns <code>#t</code> if <var>obj</var> is a simple or compound
+  condition, and <code>#f</code> otherwise.
+</p>
+
+<div class="feature">
+<span class="category">(srfi NNN base)<br>procedure</span>
+<code class="signature">(<a id="condition" href="#condition"
+                        >condition</a>
+                        <var>condition<sub>1</sub></var>
+                        <var>condition<sub>2</sub></var> …)</code>
+</div>
+
+<p>
+  If only one <var>condition</var> is supplied and it is simple, return
+  the condition unchanged.
+</p>
+
+<p>
+  Otherwise, return a compound condition that contains each of the
+  <var>condition</var>s in order. If one of the conditions in the
+  argument list is compound, then the simple conditions inside of
+  the compound condition are spliced into the list.
+</p>
+
+<div class="feature">
+<span class="category">(srfi NNN make-condition-type)<br>procedure</span>
+<code class="signature">(<a id="make-condition-type" href="#make-condition-type"
+                        >make-condition-type</a>
+                        <var>symbol</var>
+                        <var>fields</var>)</code>
+</div>
+
+<p>
+  It is an error if <var>fields</var> is not either a list or a vector,
+  and it is an error if the elements are not symbols that are all unique.
+</p>
+
+<p>
+  Create a new condition type with the name <var>symbol</var>.
+  This procedure is <em>generative</em>: each
+  invocation, even with the same <var>symbol</var> and field names, return
+  a disjoint condition type.
+</p>
+
+<p>
+  Four values are returned:
+</p>
+
+<ol>
+<li><p>
+  An implementation specific value that represents the condition type.
+  For example, in <span class="report-name">R<sup>6</sup>RS</span>,
+  this should be the record type descriptor for the condition type.
+</p></li>
+<li><p>
+  A constructor that take as many arguments as there are fields, and
+  returns a simple condition with those arguments as the fields of the
+  condition. The returned condition is immutable.
+</p></li>
+<li><p>
+  A predicate that returns true if the object is either a simple
+  condition created with the constructor, or if the object is a compound
+  condition that contains an object that returns true when passed to
+  the predicate.
+</p></li>
+<li><p>
+      A vector with the same length as <var>fields</var>, which are accessors
+      for this condition.
+    </p>
+    <ul>
+    <li>
+      On simple conditions that satisfy the predicate, the <var>n</var>th
+      accessor returns the <var>n</var>th argument to the constructor.
+    </li>
+    <li>
+      On compound conditions that satsify the predicate, first find the
+      first simple condition in the compound condition that satisfies this
+      predicate, and then call the accessor on the simple condition.
+    </li>
+    </ul>
+</ol>
+
+<div class="feature">
+<span class="category">(srfi NNN simple-conditions)<br>procedure</span>
+<code class="signature">(<a id="simple-conditions" href="#simple-conditions"
+                        >simple-conditions</a>
+                        <var>condition</var>)</code>
+</div>
+
+<p>
+  If <var>condition</var> is simple, return a list with only
+  <var>condition</var> as an element.
+</p>
+
+<p>
+  If <var>condition</var> is compound, return a list that contains the
+  simple conditions of <var>condition</var> in order.
+</p>
+
+<p>
+  The implementation may <dfn>coalese</dfn> condition types when creating a compound
+  condition: if two simple condition
+  objects are <code>eqv?</code> or are both simple immutable condition
+  objects of the same type that have fields that are <code>eqv?</code> and
+  are not separated by condition objects that share the same accessors,
+  then those two condition objects may be combined into one condition
+  object.
+</p>
+
+<p>
+  For example, consider simple condition objects <var>c<sub>1</sub></var>
+  and <var>c<sub>2</sub></var> that both have no fields and are of the same
+  type. Then these condition objects are immutable, and can be coalesed
+  into one condition type inside of the compound condition, regardless of
+  where they are.
+</p>
+
+
+<h3 id="standard-conditions"><a href="#standard-conditions"></a>
+    Standard conditions</h3>
+
+<p>
+  Unless specified, these conditions may be simple or compound. As such,
+  the implementation dependent values that would correspond to
+  <code>&message</code>, <code>&irritants</code>, etc. are not provided.
+  An implementation that makes these conditions simple should provide these
+  identifiers.
+</p>
+
+<p>
+  On <span class="report-name">R<sup>6</sup>RS</span> implementations,
+  identifiers with the same name as identifiers defined in the
+  <span class="report-name">R<sup>6</sup>RS</span> are re-exports of
+  those identifiers.
+</p>
+
+<p>
+  In this section, it is an error if <var>this-condition</var> is not a
+  condition that satisfies the predicate in the same block.
+</p>
+
+<div class="feature">
+<span class="category">(srfi NNN base)</span><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="make-warning" href="#make-warning"
+                        >make-warning</a>)</code><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="warningp" href="#warningp"
+                        >warning?</a> <var>obj</var>)</code><br>
+</div>
+
+<p>
+  A condition that signals a warning.
+</p>
+
+<div class="feature">
+<span class="category">(srfi NNN base)</span><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="make-message-condition" href="#make-message-condition"
+                        >make-message-condition</a> <var>string</var>)</code><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="make-message-condition" href="#make-message-condition"
+                        >condition-message</a> <var>this-condition</var>)</code><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="message-conditionp" href="#message-conditionp"
+                        >message-condition?</a> <var>obj</var>)</code><br>
+</div>
+
+<p>
+  A condition that contains a message in prose that describes the condition.
+</p>
+
+<p>
+  <span class="report-name">R<sup>7</sup>RS</span> error objects are message
+  conditions. This does not mean that the
+error objects are compound conditions
+  or are defined through any mechanism specified in this SRFI.
+</p>
+
+<div class="feature">
+<span class="category">(srfi NNN base)</span><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="make-irritants-condition" href="#make-irritants-condition"
+                        >make-irritants-condition</a> <var>list</var>)</code><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="make-irritants-condition" href="#make-irritants-condition"
+                        >condition-irritants</a> <var>this-condition</var>)</code><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="irritants-conditionp" href="#irritants-conditionp"
+                        >irritants-condition?</a> <var>obj</var>)</code><br>
+</div>
+
+<p>
+  A condition that contains a list of associated values. Usually, this is
+  the arguments passed to some procedure.
+</p>
+
+<p>
+  <span class="report-name">R<sup>7</sup>RS</span> error objects are irritants
+  conditions. This does not mean that they error objects are compound conditions
+  or are defined through any mechanism specified in this SRFI.
+</p>
+
+<div class="feature">
+<span class="category">(srfi NNN base)</span><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="make-serious" href="#make-serious"
+                        >make-serious-condition</a>)</code><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="seriousp" href="#seriousp"
+                        >serious-condition?</a> <var>obj</var>)</code><br>
+</div>
+
+<p>
+  A “serious” condition, signalled when something has gone wrong or requires
+  immediate intervention.
+</p>
+
+<p>
+  An <span class="report-name">R<sup>7</sup>RS</span> error object, file
+  error object, or read error object is also a serious condition.
+</p>
+
+<div class="feature">
+<span class="category">(srfi NNN base)</span><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="make-external-error" href="#make-external-error"
+                        >make-external-error</a>)</code><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="external-errorp" href="#external-errorp"
+                        >external-error?</a> <var>obj</var>)</code><br>
+</div>
+
+<p>
+  A condition that signals an error caused by something that is usually
+  external to the program, such as filesystem errors or errors from
+  malformed input. As a rule of thumb, if a procedure is designed to
+  be called on untrusted input or an external resource, then if it
+  encounters a situation where it cannot continue normally, it will
+  raise an exception of this type.
+</p>
+
+<p>
+  An <span class="report-name">R<sup>7</sup>RS</span> file error object
+  or read error object is also an external error condition.
+</p>
+
+<p>
+  Objects of this contition type are also
+  <a href="#make-serious">serious</a> conditions.
+</p>
+
+<p>
+  <span class="report-name">R<sup>6</sup>RS</span> <code>&error</code>
+  conditions are external error conditions.
+</p>
+
+<div class="boxed">
+<p>
+  <span class="boxed-tag">Rationale</span>: This was renamed from the
+  <span class="report-name">R<sup>6</sup>RS</span> name “error” because
+  “error” in common use generally encompasses what
+  <span class="report-name">R<sup>6</sup>RS</span> refers to as
+  “assertion violations.” This name makes it more explicit what type of
+  errors this condition type describes.
+</p>
+</div>
+
+<div class="feature">
+<span class="category">(srfi NNN base)</span><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="make-assertion" href="#make-assertion"
+                        >make-assertion-violation</a>)</code><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="assertionp" href="#assertionp"
+                        >assertion-violation?</a> <var>obj</var>)</code><br>
+</div>
+
+<p>
+  An <dfn>assertion violation</dfn> is raised when a procedure is called
+  incorrectly. For example, when a procedure is passed the wrong number
+  of arguments, or if a procedure is given a value of the wrong type.
+</p>
+
+<p>
+  Objects of this contition type are also
+  <a href="#make-serious">serious</a> conditions.
+</p>
+
+<div class="boxed">
+<p><span class="boxed-tag">Note</span>:
+  A Scheme program should<sup>*</sup> never depend on assertion violations
+  being raised.  Locations where assertion violations occur are generally
+  those locations where the behavior “is an error” in the <span
+  class="report-name" >R<sup>7</sup>RS</span>. They are places where
+  extensions may occur, either in newer standards or in implementations.
+</p>
+
+<p>
+  In many Scheme systems, the “error” condition or exception type really
+  corresponds to an assertion violation.
+</p>
+
+<p>*: Used in the sense of the authors opinion, not an RFC 2119 requirement
+       word.</p>
+</div>
+
+<h3 id="extension"><a href="#extensions"></a> Extensions to the <span class="report-name">R<sup>7</sup>RS</span></h3>
+
+<div class="feature">
+<span class="category">(srfi NNN r7rs)</span><br>
+<span class="category">procedure</span>
+<code class="signature">(<a id="error-objectp" href="#error-objectp"
+                        >error-object?</a> <var>obj</var>)</code><br>
+<code class="signature">(<a id="read-errorp" href="#read-errorp"
+                        >read-error?</a> <var>obj</var>)</code><br>
+<code class="signature">(<a id="file-errorp" href="#file-errorp"
+                        >file-error?</a> <var>obj</var>)</code><br>
+<code class="signature">(<a id="error-object-message" href="#error-object-message"
+                        >error-object-message</a> <var>error-object</var>)</code><br>
+<code class="signature">(<a id="error-object-irritants" href="#error-object-irritants"
+                        >error-object-irritants</a> <var>error-object</var>)</code><br>
+</div>
+
+<p>
+  These procedures are extended such that:
+</p>
+
+<ul>
+<li>An object is <code>error-object?</code> if it is a compound condition
+    object that has a system error object inside of it.</li>
+<li>An object is <code>read-error?</code> if it is a compound condition
+    object with a system read-error object inside of it.</li>
+<li>An object is <code>file-error?</code> if it is a compound condition
+    object with a system file-error object inside of it.</li>
+<li>The <code>error-object-message</code>
+    and <code>error-object-irritants</code>
+    works on compound conditions with error objects in them.
+</li>
+</ul>
+
+<p>
+  An implementation may make an error object a compound
+  condition that is made up of a serious condition, message
+  condition, and irritants condition.
+</p>
+
+<div class="boxed">
+<p><span class="boxed-tag">Note</span>:
+  Error objects, read errors, and file errors are not required to be
+  compound condition objects.  An implementation can continue to use
+  its old representations.
+</p>
+
+<p>
+  Implementations are encouraged to replace the versions of these
+  procedures in <code>(scheme base)</code> with the one defined in this SRFI. The
+  ones defined in this SRFI are backwards-compatible with the versions
+  described in the <span class="report-name">R<sup>7</sup>RS</span>.
+</p>
+</div>
+
+<h3 id="examples"><a href="#examples"></a> Examples</h2>
+
+<p><em>This section is non-normative.</em></p>
+
+<pre
+>(define-condition-type &type-mismatch
+  (make-type-mismatch value expected)
+  type-mismatch?
+  (value type-mismatch:value)
+  (expected type-mismatch:expected))
+
+(define-condition-type &who
+  (make-who-condition who)
+  who-condition?
+  (who condition-who))
+
+(define (safe-car pair)
+  (unless (pair? pair)
+    (raise (condition (make-type-mismatch pair "pair")
+                      (make-assertion-violation)
+                      (make-who-condition 'car))))
+  (car pair))
+
+(define cc (guard (x (else x)) (safe-car 5)))
+
+(error? cc)                 ; ⇒ #f
+(assertion-violation? cc)   ; ⇒ #t
+(who-condition? cc)         ; ⇒ #t
+(type-mismatch? cc)         ; ⇒ #t
+(condition-who cc)          ; ⇒ car
+(type-mismatch:value cc)    ; ⇒ 5
+(type-mismatch:expected cc) ; ⇒ "pair"</pre>
+
+<h2 id="implementation"><a href="#implementation"></a> Implementation</h2>
+
+<p>
+  Implementations of this SRFI for various Scheme implementations are
+  provided in the SRFI repository.
+</p>
+
+<h3 id="implementation-strategy"><a href="#implementation-strategy"></a> Implementation strategy</h3>
+
+<p>
+  If an implementation has a set of disjoint types meant to be used as
+  conditions, then the following implementation strategy should be
+  followed:
+</p>
+
+<ul>
+  <li>Each of those types is a simple condition.</li>
+  <li>Each type’s predicate returns <code>#t</code> when applied to a
+      compound condition with an object of that type in it.</li>
+  <li>Each type’s accessors accept a compound condition, and return
+      the accessor on the first instance of that type in the compound
+      condition.</li>
+</ul>
+
+<p>
+  This may entail a change to the representation of error objects in
+  the implementation, and any exported predicates/accessors will have
+  to be changed. However, code that was previously written for the
+  implementation’s error object system will be compatible with this
+  SRFI’s system, and allow for complete interoperation with condition
+  types defined using the interface in this SRFI.
+</p>
+
+<p>
+  This strategy is only transparent when the conditions in question
+  are considered as abstract objects. If enough of the implementation
+  details of the conditions are accessable, then it is impossible to
+  transparently replace the conditions with this system, as it would be
+  with any other system.
+</p>
+
+<h3 id="mit-scheme-implementation"><a href="#mit-scheme-implementation"></a> MIT-Scheme implementation</h3>
+
+<p>
+  An implementation for MIT-Scheme is provided as a patch to the
+  runtime and a library file implementing the identifiers of this SRFI.
+  Compound conditions are instances of a MIT-Scheme condition
+  type that has single field. The modifications to the runtime mean
+  that procedures constructed using <code>condition-accessor</code>
+  and <code>condition-predicate</code> will automatically work with
+  compound conditions.
+</p>
+
+<p>
+  MIT-Scheme is an instructive example of how one could extend
+  the condition system. MIT-Scheme conditions have a
+  <var>continuation</var> and <var>restarter</var> field. Compound
+  conditions take the <var>continuation</var> and <var>restarter</var>
+  field of the first condition passed to the constructor.
+</p>
+
+<h3 id="r6rs-implementation"><a href="#r6rs-implementation"></a> <span class="report-name">R<sup>6</sup>RS</span> implementation</h3>
+
+<p>
+  This SRFI is a subset of the behavior of the <span class="report-name">R<sup>6</sup>RS</span>
+  system.
+  Condition types defined by this SRFI are inheritable
+  by <span class="report-name">R<sup>6</sup>RS</span>’s
+  <code>define-condition-type</code> and inspectable using
+  the <span class="report-name">R<sup>6</sup>RS</span>’s
+  interfaces, and conditions defined by the <span
+  class="report-name">R<sup>6</sup>RS</span> can be used in the procedures
+  defined in this SRFI.
+</p>
+
+<h3 id="srfi-35-implementation"><a href="#srfi-35-implementation"></a> SRFI 35 implementation</h3>
+
+<p>
+  An implementation that wraps SRFI 35’s API is available. The
+  conditions defined in this SRFI are completely interoperable with SRFI
+  35 conditions. The implementation assumes that the implementation
+  uses SRFI 35 for <span class="report-name">R<sup>7</sup>RS</span>
+  error objects.
+</p>
+
+<h3 id="chicken-implementation"><a href="#chicken-implementation"></a> CHICKEN 6 implementation</h3>
+
+<p>
+  An implementation that wraps CHICKEN’s extended SRFI 12 implementation
+  is provided.  Conditions defined by this SRFI are CHICKEN 6 conditions,
+  and so are compound conditions created by this SRFI. Hence, the two
+  systems are completely interoperable. CHICKEN’s standard exceptions
+  are categorized into external errors or assertion violations by the
+  sample implementation.
+</p>
+
+<h3 id="r7rs-implementation"><a href="#r7rs-implementation"></a> <span class="report-name">R<sup>7</sup>RS</span> implementation</h3>
+
+<p>
+  This implementation makes <em>every</em> object a condition object.
+  <a href="https://srfi.schemers.org/srfi-222/">SRFI 222</a> compound
+  objects are compound condition objects. No procedural interface is
+  provided.
+</p>
+
+<p>
+  This implementation should only be used if the implementation has no
+  native condition/exception object system.
+</p>
+
+<h2 id="acknowledgements"><a href="#acknowledgements"></a> Acknowledgements</h2>
+
+<p>
+  I thank William Clinger, R. Kent Dybvig, Matthew Flatt, Marc Feeley (SRFI 12 authors),
+  Richard Kelsey, and Michael Sperber (SRFI 35 authors), for their work
+  defining compound condition systems in Scheme.
+</p>
+
+<h2 id="other-systems"><a href="#other-systems"></a> Appendix 1: Other systems</h3>
+
+<p>
+  This table covers the various non-<span
+  class="report-name">R<sup>6</sup>RS</span> implementations that were
+  studied in the process of writing this SRFI.
+</p>
+
+<table>
+<tr><th>Implementation</th><th>Condition system (beyond <span class="report-name">R<sup>7</sup>RS</span>)</th></tr>
+<tr><td>Bigloo</td><td>No compound conditions, conditions are defined using the object system</td></tr>
+<tr><td>Biwa</td><td>None (does not implement <code>error</code>)</td></tr>
+<tr><td>Chibi Scheme</td><td>Error objects have a <code>kind</code> field</td></tr>
+<tr><td>CHICKEN 6</td><td>SRFI 12, expanded</td></tr>
+<tr><td>Cyclone</td><td>None (error objects are pairs)</td></tr>
+<tr><td>Gauche</td><td>SRFI 35, modified condition hierarchy, multiple inheritance</td></tr>
+<tr><td>Gambit</td><td>None (exceptions are records, there is no <code>condition?</code> supertype)</td></tr>
+<tr><td>Gerbil</td><td>Exception objects are defined with multiple-inheritance object system</td></tr>
+<tr><td>Goldfish</td><td>None (derived from s7)</td></tr>
+<tr><td>Kawa</td><td>Java exceptions</td></tr>
+<tr><td>LIPS</td><td>Javascript exceptions</tr>
+<tr><td>Meevax</td><td>None</td></tr>
+<tr><td>MIT-Scheme</td><td>Single inheritance condition system without compound conditions</td></tr>
+<tr><td>s7</td><td>None</td></tr>
+<tr><td>Foment</td><td>Error objects have <code>who</code> and <code>kind</code> fields</td></tr>
+<tr><td>STKlos</td><td>SRFI 35</td></tr>
+<tr><td>SKINT</td><td>None?</td></tr>
+<tr><td>Stak</td><td>None</td></tr>
+<tr><td>
+</table>
+
+<p>
+  Notably, Racket uses an exception system without compound conditions,
+  only single inheritance.
+</p>
+
+
+<h2 id="bibliography"><a href="#bibliography"></a> Bibliography</h2>
+
+<ol>
+<li id="clinger2007">William D. Clinger. 2007. “An essay on language design: fixing the syntactic record layer.”
+    Retrieved from <a href="https://r6rs.org/ratification/results.html#X101">https://r6rs.org/ratification/results.html#X101</a> on September 21<sup>st</sup>, 2026.</li>
+<li id="clinger2009">William D. Clinger. 2009. “SRFI 99: ERR5RS Records.”</li>
+</ol>
+
+<h2 id="copyright"><a href="#copyright"></a> Copyright</h2>
+<p>&copy; 2026 Peter McGoron.</p>
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the “Software”), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.</p>
+
+<p>
+  THE SOFTWARE IS PROVIDED “AS IS,” WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+
+<hr>
+
+<p>
+  The sample implementation includes a patch to MIT-Scheme. That file may
+  be redistributed and/or modified under the terms of the GNU General
+  Public License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
+  The patch is distributed in the hope that it will be useful,
+  but <strong>without any warranty</strong>; without even the implied
+  warranty of <strong>merchantability</strong> or <strong>fitness for
+  a particular purpose</strong>.  See the GNU General Public License
+  for more details.
+</p>
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
