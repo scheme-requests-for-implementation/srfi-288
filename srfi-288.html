@@ -319,7 +319,7 @@ SPDX-License-Identifier: MIT
 <p>
   A more expansive procedural/inspection interface is not provided because
   implementations differ in behavior when they employ extensions to this
-  SRFI, and it is difficult to write a specificiation that is forwards
+  SRFI, and it is difficult to write a specification that is forwards
   compatible with such extensions. For example,
 </p>
 
@@ -376,7 +376,7 @@ SPDX-License-Identifier: MIT
 </p>
 
 <p>
-  It is useful to coalese fields with the same name, because then the
+  It is useful to coalesce fields with the same name, because then the
   condition type can be represented in a multiple-inheritance object
   system. However, if this is not required, then an implementation
   should provide this interface. In particular, implementations that
@@ -530,7 +530,7 @@ SPDX-License-Identifier: MIT
       accessor returns the <var>n</var>th argument to the constructor.
     </li>
     <li>
-      On compound conditions that satsify the predicate, first find the
+      On compound conditions that satisfy the predicate, first find the
       first simple condition in the compound condition that satisfies this
       predicate, and then call the accessor on the simple condition.
     </li>
@@ -555,7 +555,7 @@ SPDX-License-Identifier: MIT
 </p>
 
 <p>
-  The implementation may <dfn>coalese</dfn> condition types when creating a compound
+  The implementation may <dfn>coalesce</dfn> condition types when creating a compound
   condition: if two simple condition
   objects are <code>eqv?</code> or are both simple immutable condition
   objects of the same type that have fields that are <code>eqv?</code> and
@@ -567,7 +567,7 @@ SPDX-License-Identifier: MIT
 <p>
   For example, consider simple condition objects <var>c<sub>1</sub></var>
   and <var>c<sub>2</sub></var> that both have no fields and are of the same
-  type. Then these condition objects are immutable, and can be coalesed
+  type. Then these condition objects are immutable, and can be coalesced
   into one condition type inside of the compound condition, regardless of
   where they are.
 </p>
@@ -703,7 +703,7 @@ error objects are compound conditions
 </p>
 
 <p>
-  Objects of this contition type are also
+  Objects of this condition type are also
   <a href="#make-serious">serious</a> conditions.
 </p>
 
@@ -740,7 +740,7 @@ error objects are compound conditions
 </p>
 
 <p>
-  Objects of this contition type are also
+  Objects of this contrition type are also
   <a href="#make-serious">serious</a> conditions.
 </p>
 
@@ -886,7 +886,7 @@ error objects are compound conditions
 <p>
   This strategy is only transparent when the conditions in question
   are considered as abstract objects. If enough of the implementation
-  details of the conditions are accessable, then it is impossible to
+  details of the conditions are accessible, then it is impossible to
   transparently replace the conditions with this system, as it would be
   with any other system.
 </p>
