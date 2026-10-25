@@ -1,5 +1,5 @@
 #!no-fold-case ; For MIT-Scheme, which starts out in case folding mode
-(test-begin "SRFI NNN")
+(test-begin "SRFI 288")
 
 (define (any f lst)
   (if (null? lst)
@@ -43,7 +43,7 @@
                 (foo-baz comp))
     (test-group "Simple conditions"
       (cond-expand
-        ((library (srfi NNN simple-conditions))
+        ((library (srfi 288 simple-conditions))
          (let ((lst (simple-conditions comp)))
            (test-assert "simple-conditions is list" (list? lst))
            (test-assert "A condition that is foo? exists somewhere"
@@ -61,7 +61,7 @@
                     (foo-baz comp))))))
 
 (cond-expand
-  ((library (srfi NNN make-condition-type))
+  ((library (srfi 288 make-condition-type))
    (test-group "make-condition-type"
      (let-values (((type cstr is-c? accessors)
                    (make-condition-type 'c '#(a b))))
@@ -93,4 +93,4 @@
                         (not (is-c? (cstr2 'a 'b)))))))))
   (else))
 
-(test-end "SRFI NNN")
+(test-end "SRFI 288")

@@ -5,7 +5,7 @@ SPDX-FileCopyrightText: 2026 Peter McGoron
 -->
   <head>
     <meta charset="utf-8">
-    <title>SRFI ###: Compound Conditions</title>
+    <title>SRFI 288: Compound Conditions</title>
     <style>
             .strikethrough {
               text-decoration: line-through;
@@ -132,7 +132,7 @@ SPDX-FileCopyrightText: 2026 Peter McGoron
         ><img class="srfi-logo"
               src="https://srfi.schemers.org/srfi-logo.svg"
               alt="SRFI surfboard logo"
-        /></a>###: Compound Conditions</h1>
+        /></a>288: Compound Conditions</h1>
 
 <p>by Peter McGoron</p>
 
@@ -160,7 +160,7 @@ SPDX-FileCopyrightText: 2026 Peter McGoron
       an implementation does have them, while also being detectable
       so that a user can test if that feature is available? Each
       possible simple condition type could be given its own library
-      like <code>(srfi NNN warning)</code> for <code>&warning</code>,
+      like <code>(srfi 288 warning)</code> for <code>&warning</code>,
       but this is very tedious. Maybe these should be in an
       implementation-specified library.</li>
 </ul>
@@ -346,7 +346,7 @@ SPDX-FileCopyrightText: 2026 Peter McGoron
 <h3 id="required-features"><a href="#required-features"></a> Required and optional features</h3>
 
 <p>
-  The <code>(srfi NNN)</code> and <code>(srfi NNN base)</code> library
+  The <code>(srfi 288)</code> and <code>(srfi 288 base)</code> library
   is required. The other libraries are optional but should be supplied.
 </p>
 
@@ -358,13 +358,13 @@ SPDX-FileCopyrightText: 2026 Peter McGoron
 
 <h3 id="interface"><a href="#interface"></a> Interface</h3>
 
-<p>The <code>(srfi NNN)</code> library exports all identifiers available
+<p>The <code>(srfi 288)</code> library exports all identifiers available
    to the implementation.
 </p>
 
 <div class="feature">
 <pre class="no-border"
-><span class="category">(srfi NNN base)<br>syntax</span
+><span class="category">(srfi 288 base)<br>syntax</span
 >(<a id="define-condition-type" href="#define-condition-type"
   >define-condition-type</a> ⟨type name⟩
   (⟨constructor⟩ ⟨field⟩ …)
@@ -404,7 +404,7 @@ SPDX-FileCopyrightText: 2026 Peter McGoron
 </p>
 
 <div class="feature">
-<span class="category">(srfi NNN base)<br>procedure</span>
+<span class="category">(srfi 288 base)<br>procedure</span>
 <code class="signature">(<a id="conditionp" href="#conditionp"
                         >condition?</a>
                         <var>obj</var>)</code>
@@ -416,7 +416,7 @@ SPDX-FileCopyrightText: 2026 Peter McGoron
 </p>
 
 <div class="feature">
-<span class="category">(srfi NNN base)<br>procedure</span>
+<span class="category">(srfi 288 base)<br>procedure</span>
 <code class="signature">(<a id="condition" href="#condition"
                         >condition</a>
                         <var>condition<sub>1</sub></var>
@@ -436,7 +436,7 @@ SPDX-FileCopyrightText: 2026 Peter McGoron
 </p>
 
 <div class="feature">
-<span class="category">(srfi NNN make-condition-type)<br>procedure</span>
+<span class="category">(srfi 288 make-condition-type)<br>procedure</span>
 <code class="signature">(<a id="make-condition-type" href="#make-condition-type"
                         >make-condition-type</a>
                         <var>symbol</var>
@@ -494,7 +494,7 @@ SPDX-FileCopyrightText: 2026 Peter McGoron
 </ol>
 
 <div class="feature">
-<span class="category">(srfi NNN simple-conditions)<br>procedure</span>
+<span class="category">(srfi 288 simple-conditions)<br>procedure</span>
 <code class="signature">(<a id="simple-conditions" href="#simple-conditions"
                         >simple-conditions</a>
                         <var>condition</var>)</code>
@@ -553,7 +553,7 @@ SPDX-FileCopyrightText: 2026 Peter McGoron
 </p>
 
 <div class="feature">
-<span class="category">(srfi NNN base)</span><br>
+<span class="category">(srfi 288 base)</span><br>
 <span class="category">procedure</span>
 <code class="signature">(<a id="make-warning" href="#make-warning"
                         >make-warning</a>)</code><br>
@@ -567,7 +567,7 @@ SPDX-FileCopyrightText: 2026 Peter McGoron
 </p>
 
 <div class="feature">
-<span class="category">(srfi NNN base)</span><br>
+<span class="category">(srfi 288 base)</span><br>
 <span class="category">procedure</span>
 <code class="signature">(<a id="make-message-condition" href="#make-message-condition"
                         >make-message-condition</a> <var>string</var>)</code><br>
@@ -591,7 +591,7 @@ error objects are compound conditions
 </p>
 
 <div class="feature">
-<span class="category">(srfi NNN base)</span><br>
+<span class="category">(srfi 288 base)</span><br>
 <span class="category">procedure</span>
 <code class="signature">(<a id="make-irritants-condition" href="#make-irritants-condition"
                         >make-irritants-condition</a> <var>list</var>)</code><br>
@@ -615,7 +615,7 @@ error objects are compound conditions
 </p>
 
 <div class="feature">
-<span class="category">(srfi NNN base)</span><br>
+<span class="category">(srfi 288 base)</span><br>
 <span class="category">procedure</span>
 <code class="signature">(<a id="make-serious" href="#make-serious"
                         >make-serious-condition</a>)</code><br>
@@ -635,7 +635,7 @@ error objects are compound conditions
 </p>
 
 <div class="feature">
-<span class="category">(srfi NNN base)</span><br>
+<span class="category">(srfi 288 base)</span><br>
 <span class="category">procedure</span>
 <code class="signature">(<a id="make-external-error" href="#make-external-error"
                         >make-external-error</a>)</code><br>
@@ -680,7 +680,7 @@ error objects are compound conditions
 </div>
 
 <div class="feature">
-<span class="category">(srfi NNN base)</span><br>
+<span class="category">(srfi 288 base)</span><br>
 <span class="category">procedure</span>
 <code class="signature">(<a id="make-assertion" href="#make-assertion"
                         >make-assertion-violation</a>)</code><br>
@@ -721,7 +721,7 @@ error objects are compound conditions
 <h3 id="extension"><a href="#extensions"></a> Extensions to the <span class="report-name">R<sup>7</sup>RS</span></h3>
 
 <div class="feature">
-<span class="category">(srfi NNN r7rs)</span><br>
+<span class="category">(srfi 288 r7rs)</span><br>
 <span class="category">procedure</span>
 <code class="signature">(<a id="error-objectp" href="#error-objectp"
                         >error-object?</a> <var>obj</var>)</code><br>

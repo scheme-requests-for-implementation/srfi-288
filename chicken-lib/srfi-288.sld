@@ -1,4 +1,4 @@
-(define-library (srfi NNN)
+(define-library (srfi 288)
   (import (scheme base) (chicken base) (except (chicken condition) condition))
   (export define-condition-type condition?
           condition

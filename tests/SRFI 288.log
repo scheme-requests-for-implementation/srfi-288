@@ -1,5 +1,5 @@
-%%%% Starting test SRFI NNN
-Group begin: SRFI NNN
+%%%% Starting test SRFI 288
+Group begin: SRFI 288
 Group begin: user simple conditions
 Test begin:
   test-name: "define-condition-type constructor makes conditions"
@@ -74,5 +74,5 @@ Test end:
   expected-value: 20
 Group end: Multiple conditions in compound condition
 Group end: Compound conditions
-Group end: SRFI NNN
+Group end: SRFI 288
 # of expected passes      12

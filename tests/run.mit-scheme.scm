@@ -1,6 +1,6 @@
-(load "../mit-scheme-lib/srfi-NNN.sld")
+(load "../mit-scheme-lib/srfi-288.sld")
 (load "tests.mit-scheme.scm")
-,(import (srfi |NNN|))
+,(import (srfi |288|))
 (load "r7rs.scm")
 
 ,(import (scheme process-context))

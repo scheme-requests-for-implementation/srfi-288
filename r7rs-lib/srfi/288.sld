@@ -1,4 +1,4 @@
-(define-library (srfi NNN)
+(define-library (srfi 288)
   (import (rename (scheme base)
                   (error-object? r7rs:error-object?)
                   (error-object-message r7rs:error-object-message)
@@ -18,4 +18,4 @@
           make-serious-condition serious-condition?
           make-external-error external-error?
           make-assertion-violation assertion-violation?)
-  (include "NNN.scm"))
+  (include "288.scm"))

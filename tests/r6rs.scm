@@ -1,7 +1,7 @@
 #!r6rs
-(import (except (rnrs) define-condition-type) (srfi :NNN) (srfi :64))
+(import (except (rnrs) define-condition-type) (srfi :288) (srfi :64))
 
-(test-begin "SRFI NNN")
+(test-begin "SRFI 288")
 
 (test-begin "base")
 (let-values (((type cstr predicate accessors)
@@ -61,4 +61,4 @@
 
 (test-end "base")
 
-(test-end "SRFI NNN")
+(test-end "SRFI 288")

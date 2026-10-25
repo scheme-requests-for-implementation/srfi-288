@@ -1,4 +1,4 @@
-(define-library (srfi NNN)
+(define-library (srfi 288)
   (import (rename (only (mit legacy runtime)
                         condition condition? make-condition-type
                         simple-conditions
@@ -227,8 +227,8 @@
   )
 )
 
-(define-library (srfi NNN base)
-  (import (srfi NNN))
+(define-library (srfi 288 base)
+  (import (srfi 288))
   (export condition condition? make-condition-type
           make-warning warning?
           make-message-condition condition-message message-condition?
@@ -237,15 +237,15 @@
           make-external-error external-error?
           make-assertion-violation assertion-violation?))
 
-(define-library (srfi NNN r7rs)
-  (import (srfi NNN))
+(define-library (srfi 288 r7rs)
+  (import (srfi 288))
   (export error-object? error-object-message error-object-irritants
           file-error? read-error?))
 
-(define-library (srfi NNN simple-conditions)
-  (import (srfi NNN))
+(define-library (srfi 288 simple-conditions)
+  (import (srfi 288))
   (export simple-conditions))
 
-(define-library (srfi NNN make-condition-type)
-  (import (srfi NNN))
+(define-library (srfi 288 make-condition-type)
+  (import (srfi 288))
   (export make-condition-type))

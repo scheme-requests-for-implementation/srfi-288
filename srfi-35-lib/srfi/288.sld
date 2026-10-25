@@ -1,4 +1,4 @@
-(define-library (srfi NNN)
+(define-library (srfi 288)
   (import (scheme base)
           (rename (srfi 35)
                   (make-condition-type srfi-35:make-condition-type)
@@ -15,4 +15,4 @@
           make-irritants-condition condition-irritants irritants-condition?
           error-object? error-object-message error-object-irritants
           read-error? file-error?)
-  (include "NNN.scm"))
+  (include "288.scm"))
