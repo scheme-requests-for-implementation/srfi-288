@@ -9,6 +9,8 @@
 
 keywords: [[https://srfi.schemers.org/?keywords=exceptions][Exceptions]]
 
+library-name: condition
+
 This repository hosts [[https://srfi.schemers.org/srfi-288/][SRFI 288]]: Compound Conditions, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
 This SRFI is in /draft/ status.
