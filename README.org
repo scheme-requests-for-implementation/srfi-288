@@ -12,7 +12,7 @@ keywords: [[https://srfi.schemers.org/?keywords=exceptions][Exceptions]]
 This repository hosts [[https://srfi.schemers.org/srfi-288/][SRFI 288]]: Compound Conditions, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
 This SRFI is in /draft/ status.
-See also [[/srfi-12/][SRFI 12: Exception Handling]] and [[/srfi-35/][SRFI 35: Conditions]].
+See also [[/srfi-12/][SRFI 12: Exception Handling]], [[/srfi-35/][SRFI 35: Conditions]], [[/srfi-99/][SRFI 99: ERR5RS Records]], [[/srfi-222/][SRFI 222: Compound Objects]], and [[/srfi-237/][SRFI 237: R6RS Records (refined)]].
 The full documentation for this SRFI can be found in the [[https://srfi.schemers.org/srfi-288/srfi-288.html][SRFI Document]].
 
 If you'd like to participate in the discussion of this SRFI, or report issues with it, please [[https://srfi.schemers.org/srfi-288/][join the SRFI-288 mailing list]] and send your message there.
