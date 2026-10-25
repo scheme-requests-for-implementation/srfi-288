@@ -18,7 +18,7 @@
                (condition? (make-foo 1 2)))
   (test-assert "define-condition-type predicate"
                (foo? (make-foo 1 2)))
-  
+
   (let ((foo (make-foo 1 2)))
     (test-equal "accessor on simple condition, 1"
                 1
