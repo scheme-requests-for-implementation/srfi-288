@@ -1,3 +1,7 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+;
+; SPDX-License-Identifier: MIT
+
 #!r6rs
 (import (except (rnrs) define-condition-type) (srfi :288) (srfi :64))
 

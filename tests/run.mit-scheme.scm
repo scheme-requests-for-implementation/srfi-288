@@ -1,3 +1,7 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+;
+; SPDX-License-Identifier: GPL-2.0-or-later
+
 (load "../mit-scheme-lib/srfi-288.sld")
 (load "tests.mit-scheme.scm")
 ,(import (srfi |288|))

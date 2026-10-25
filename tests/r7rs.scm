@@ -1,3 +1,7 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+;
+; SPDX-License-Identifier: MIT
+
 #!no-fold-case ; For MIT-Scheme, which starts out in case folding mode
 (test-begin "SRFI 288")
 

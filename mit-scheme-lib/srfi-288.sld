@@ -1,3 +1,7 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+;
+; SPDX-License-Identifier: GPL-2.0-or-later
+
 (define-library (srfi 288)
   (import (rename (only (mit legacy runtime)
                         condition condition? make-condition-type

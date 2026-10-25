@@ -1,3 +1,7 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+;
+; SPDX-License-Identifier: MIT
+
 (define (compound-accessor* predicate accessor obj)
   (let* ((dummy (cons #f #f))
          (r (compound-access predicate accessor dummy obj)))

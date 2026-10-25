@@ -1,3 +1,7 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+;
+; SPDX-License-Identifier: MIT
+
 (library (srfi :NNN base)
   (export make-condition-type define-condition-type
           condition condition?
